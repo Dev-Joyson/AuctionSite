@@ -35,32 +35,36 @@ Ensure the following software is installed on your system:
 
    ```bash
    python -m venv myenv
+   ```
+   ```bash
    # On Windows
    myenv\Scripts\activate
+   ```
+   ```bash
    # On Unix or macOS
    source myenv/bin/activate
    ```
 
-3. **Install Backend Dependencies:**
+4. **Install Backend Dependencies:**
 
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Apply Migrations:**
+5. **Apply Migrations:**
 
    ```bash
    python manage.py migrate
    ```
 
-5. **Create a Superuser:**
+6. **Create a Superuser:**
 
    ```bash
    python manage.py createsuperuser
    ```
    Follow the prompts to set a username, email, and password.
 
-6. **Run the Backend Server:**
+7. **Run the Backend Server:**
 
    ```bash
    python manage.py runserver
