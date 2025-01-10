@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'auction',
     'rest_framework',
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -52,11 +53,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    "corsheaders.middleware.CorsMiddleware",  # Add this line
+    "django.middleware.common.CommonMiddleware",
 ]
 
 INTERNAL_IPS = [
     '127.0.0.1',  # Add your local IP address
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.timer.TimerPanel',

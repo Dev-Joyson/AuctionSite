@@ -6,5 +6,6 @@ urlpatterns = [
     path('auctions/', AuctionListCreateView.as_view(), name='auction-list-create'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('products/<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
+    
 
 ]
