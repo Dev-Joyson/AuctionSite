@@ -1,214 +1,182 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const API_URL = "http://127.0.0.1:8000/api/products/";
-
-const ProductManager = () => {
-  const [products, setProducts] = useState([]);
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    description: "",
-    starting_price: "",
-    category: "others",  // Default to 'others'
+const ProductManagement = () => {
+  const [products, setProducts] = useState([]); // Ensure it's an empty array initially
+  const [product, setProduct] = useState({
+    name: '',
+    description: '',
+    starting_price: '',
+    category: 'others',
+    image: 'https://cdn2.iconfinder.com/data/icons/creative-icons-2/64/PACKAGING_DESIGN-1024.png', // Default image URL
   });
-  const [editProduct, setEditProduct] = useState(null);
-  const [filters, setFilters] = useState({
-    category: "",
-    minPrice: "",
-    maxPrice: "",
-  });
+  const [isEdit, setIsEdit] = useState(false);
+  const [productId, setProductId] = useState(null);
 
+  // Fetch all products on initial load
   useEffect(() => {
-    fetchProducts();
-  }, [filters]);  // Fetch products whenever the filters change
+    axios.get('http://127.0.0.1:8000/api/products/')
+      .then(response => {
+        setProducts(response.data || []); // Ensure it's an array
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error);
+      });
+  }, []);
 
-  const fetchProducts = async () => {
-    try {
-      // Construct the query string with filters
-      const queryParams = new URLSearchParams();
-      if (filters.category) queryParams.append("category", filters.category);
-      if (filters.minPrice) queryParams.append("min_price", filters.minPrice);
-      if (filters.maxPrice) queryParams.append("max_price", filters.maxPrice);
-
-      const response = await axios.get(`${API_URL}?${queryParams.toString()}`);
-      setProducts(response.data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+  // Fetch product details if editing
+  useEffect(() => {
+    if (productId) {
+      setIsEdit(true);
+      axios.get(`http://127.0.0.1:8000/api/products/${productId}/`)
+        .then(response => {
+          setProduct(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching product:', error);
+        });
     }
-  };
+  }, [productId]);
 
-  const createProduct = async () => {
-    try {
-      const response = await axios.post(API_URL, newProduct);
-      setProducts([...products, response.data]);
-      setNewProduct({ name: "", description: "", starting_price: "", category: "others" });
-    } catch (error) {
-      console.error("Error creating product:", error);
-    }
-  };
-
-  const updateProduct = async (id) => {
-    try {
-      const response = await axios.put(`${API_URL}${id}/`, editProduct);
-      setProducts(
-        products.map((product) => (product.id === id ? response.data : product))
-      );
-      setEditProduct(null);
-    } catch (error) {
-      console.error("Error updating product:", error);
-    }
-  };
-
-  const deleteProduct = async (id) => {
-    try {
-      await axios.delete(`${API_URL}${id}/`);
-      setProducts(products.filter((product) => product.id !== id));
-    } catch (error) {
-      console.error("Error deleting product:", error);
-    }
-  };
-
-  const handleInputChange = (e, setState, currentState) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setState({ ...currentState, [name]: value });
+    setProduct({
+      ...product,
+      [name]: value,
+    });
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const apiUrl = isEdit ? `http://127.0.0.1:8000/api/products/${productId}/` : 'http://127.0.0.1:8000/api/products/';
+    const method = isEdit ? 'put' : 'post';
+
+    axios({
+      method,
+      url: apiUrl,
+      data: product,
+    })
+      .then(response => {
+        alert('Product saved successfully');
+        // Refresh product list after submission
+        setProduct({
+          name: '',
+          description: '',
+          starting_price: '',
+          category: 'others',
+          image: 'https://cdn2.iconfinder.com/data/icons/creative-icons-2/64/PACKAGING_DESIGN-1024.png',
+        });
+        setIsEdit(false);
+        setProductId(null);
+        axios.get('http://127.0.0.1:8000/api/products/')
+          .then(response => {
+            setProducts(response.data || []); // Ensure it's an array
+          })
+          .catch(error => {
+            console.error('Error fetching products:', error);
+          });
+      })
+      .catch(error => {
+        alert('Error saving product');
+        console.error('Error:', error);
+      });
+  };
+
+  const handleEdit = (id) => {
+    setProductId(id);
+  };
+
+  const handleDelete = (id) => {
+    axios.delete(`http://127.0.0.1:8000/api/products/${id}/`)
+      .then(() => {
+        alert('Product deleted successfully');
+        setProducts(products.filter((product) => product.id !== id));
+      })
+      .catch((error) => {
+        alert('Error deleting product');
+        console.error('Error:', error);
+      });
   };
 
   return (
-    <div>
-      <h1>Product Manager</h1>
+    <div className="product-management">
+      <h1>Product Management</h1>
 
-      {/* Filter Section */}
-      <div>
-        <h2>Filter Products</h2>
-        <select
-          name="category"
-          value={filters.category}
-          onChange={handleFilterChange}
-        >
-          <option value="">All Categories</option>
-          <option value="commodities">Commodities</option>
-          <option value="electronics">Electronics</option>
-          <option value="apparels">Apparels</option>
-          <option value="vehicles">Vehicles</option>
-          <option value="property">Property</option>
-          <option value="art">Art</option>
-          <option value="others">Others</option>
-        </select>
-        <input
-          type="number"
-          name="minPrice"
-          placeholder="Min Price"
-          value={filters.minPrice}
-          onChange={handleFilterChange}
-        />
-        <input
-          type="number"
-          name="maxPrice"
-          placeholder="Max Price"
-          value={filters.maxPrice}
-          onChange={handleFilterChange}
-        />
-      </div>
-
-      {/* Add New Product Section */}
-      <div>
-        <h2>Add New Product</h2>
-        <input
-          type="text"
-          name="name"
-          placeholder="Name"
-          value={newProduct.name}
-          onChange={(e) => handleInputChange(e, setNewProduct, newProduct)}
-        />
-        <input
-          type="text"
-          name="description"
-          placeholder="Description"
-          value={newProduct.description}
-          onChange={(e) => handleInputChange(e, setNewProduct, newProduct)}
-        />
-        <input
-          type="number"
-          name="starting_price"
-          placeholder="Starting Price"
-          value={newProduct.starting_price}
-          onChange={(e) => handleInputChange(e, setNewProduct, newProduct)}
-        />
-        <select
-          name="category"
-          value={newProduct.category}
-          onChange={(e) => handleInputChange(e, setNewProduct, newProduct)}
-        >
-          <option value="commodities">Commodities</option>
-          <option value="electronics">Electronics</option>
-          <option value="apparels">Apparels</option>
-          <option value="vehicles">Vehicles</option>
-          <option value="property">Property</option>
-          <option value="art">Art</option>
-          <option value="others">Others</option>
-        </select>
-        <button onClick={createProduct}>Add Product</button>
-      </div>
+      {/* Product Form (Create/Edit) */}
+      <form onSubmit={handleSubmit} className="product-form">
+        <div>
+          <label>Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={product.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Description:</label>
+          <textarea
+            name="description"
+            value={product.description}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Starting Price:</label>
+          <input
+            type="number"
+            name="starting_price"
+            value={product.starting_price}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Category:</label>
+          <select
+            name="category"
+            value={product.category}
+            onChange={handleChange}
+          >
+            <option value="commodities">Commodities</option>
+            <option value="electronics">Electronics</option>
+            <option value="apparels">Apparels</option>
+            <option value="vehicles">Vehicles</option>
+            <option value="property">Property</option>
+            <option value="art">Art</option>
+            <option value="others">Others</option>
+          </select>
+        </div>
+        <div>
+          <label>Image URL:</label>
+          <input
+            type="url"
+            name="image"
+            value={product.image}
+            onChange={handleChange}
+          />
+          <p>Enter an image URL</p>
+        </div>
+        <div>
+          <button type="submit">{isEdit ? 'Update Product' : 'Create Product'}</button>
+        </div>
+      </form>
 
       {/* Product List */}
-      <div>
-        <h2>Product List</h2>
-        {products.map((product) => (
-          <div key={product.id}>
-            {editProduct && editProduct.id === product.id ? (
-              <>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Name"
-                  value={editProduct.name}
-                  onChange={(e) => handleInputChange(e, setEditProduct, editProduct)}
-                />
-                <input
-                  type="text"
-                  name="description"
-                  placeholder="Description"
-                  value={editProduct.description}
-                  onChange={(e) => handleInputChange(e, setEditProduct, editProduct)}
-                />
-                <input
-                  type="number"
-                  name="starting_price"
-                  placeholder="Starting Price"
-                  value={editProduct.starting_price}
-                  onChange={(e) => handleInputChange(e, setEditProduct, editProduct)}
-                />
-                <select
-                  name="category"
-                  value={editProduct.category}
-                  onChange={(e) => handleInputChange(e, setEditProduct, editProduct)}
-                >
-                  <option value="commodities">Commodities</option>
-                  <option value="electronics">Electronics</option>
-                  <option value="apparels">Apparels</option>
-                  <option value="vehicles">Vehicles</option>
-                  <option value="property">Property</option>
-                  <option value="art">Art</option>
-                  <option value="others">Others</option>
-                </select>
-                <button onClick={() => updateProduct(product.id)}>Save</button>
-                <button onClick={() => setEditProduct(null)}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <p>{product.name}</p>
-                <p>{product.description}</p>
-                <p>{product.starting_price}</p>
-                <p>{product.category}</p>
-                <button onClick={() => setEditProduct(product)}>Edit</button>
-                <button onClick={() => deleteProduct(product.id)}>Delete</button>
-              </>
-            )}
+      <div className="product-list">
+        {Array.isArray(products) && products.map((product) => (
+          <div key={product.id} className="product-card">
+            <img src={product.image} alt={product.name} className="product-image" />
+            <h3>{product.name}</h3>
+            <p>{product.description}</p>
+            <p><strong>Price:</strong> LKR {product.starting_price}</p>
+            <p><strong>Category:</strong> {product.category}</p>
+            <div>
+              <button onClick={() => handleEdit(product.id)}>Edit</button>
+              <button onClick={() => handleDelete(product.id)}>Delete</button>
+            </div>
           </div>
         ))}
       </div>
@@ -216,4 +184,4 @@ const ProductManager = () => {
   );
 };
 
-export default ProductManager;
+export default ProductManagement;
