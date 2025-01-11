@@ -165,21 +165,82 @@ const ProductManagement = () => {
       </form>
 
       {/* Product List */}
-      <div className="product-list">
-        {Array.isArray(products) && products.map((product) => (
-          <div key={product.id} className="product-card">
-            <img src={product.image} alt={product.name} className="product-image" />
-            <h3>{product.name}</h3>
-            <p>{product.description}</p>
-            <p><strong>Price:</strong> LKR {product.starting_price}</p>
-            <p><strong>Category:</strong> {product.category}</p>
-            <div>
-              <button onClick={() => handleEdit(product.id)}>Edit</button>
-              <button onClick={() => handleDelete(product.id)}>Delete</button>
-            </div>
-          </div>
-        ))}
+
+<div 
+  style={{
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: '20px',
+    padding: '20px',
+  }}
+>
+  {Array.isArray(products) && products.map((product) => (
+    <div 
+      key={product.id} 
+      style={{
+        border: '1px solid #ddd',
+        borderRadius: '10px',
+        width: '250px',
+        padding: '15px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        textAlign: 'center',
+        backgroundColor: '#fff',
+      }}
+    >
+      <img 
+        src={product.image} 
+        alt={product.name} 
+        style={{
+          width: '150px',
+          height: '150px',
+          objectFit: 'cover',
+          borderRadius: '10px',
+          marginBottom: '10px',
+        }} 
+      />
+      <h3 style={{ fontSize: '18px', margin: '10px 0' }}>{product.name}</h3>
+      <p style={{ fontSize: '14px', color: '#555' }}>{product.description}</p>
+      <p style={{ fontWeight: 'bold', fontSize: '16px', margin: '10px 0' }}>
+        LKR {product.starting_price}
+      </p>
+      <p style={{ color: '#007BFF', fontSize: '14px' }}>
+        Category: {product.category}
+      </p>
+      <div style={{ marginTop: '15px' }}>
+        <button 
+          onClick={() => handleEdit(product.id)} 
+          style={{
+            marginRight: '10px',
+            padding: '8px 12px',
+            border: 'none',
+            backgroundColor: '#007BFF',
+            color: '#fff',
+            borderRadius: '5px',
+            cursor: 'pointer',
+          }}
+        >
+          Edit
+        </button>
+        <button 
+          onClick={() => handleDelete(product.id)} 
+          style={{
+            padding: '8px 12px',
+            border: 'none',
+            backgroundColor: '#FF4D4F',
+            color: '#fff',
+            borderRadius: '5px',
+            cursor: 'pointer',
+          }}
+        >
+          Delete
+        </button>
       </div>
+    </div>
+  ))}
+</div>
+
+
     </div>
   );
 };
