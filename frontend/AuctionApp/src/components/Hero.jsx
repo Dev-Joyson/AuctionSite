@@ -4,7 +4,7 @@ import heroImg from '../assets/heroImg2.jpg'
 
 const Hero = () => {
     return (
-        <div className='flex flex-col md:flex-row flex-wrap px-6 md:px-10 lg:px-20 mt-5'>
+        <div className='flex flex-col md:flex-row flex-wrap px-6 md:px-10 lg:px-20 my-10'>
 
             {/* -------------- Left Side ----------------- */}
             <div className='md:w-1/2 flex flex-col items-start justify-center gap-4 py-10 m-auto md:py-[10vw]'>
