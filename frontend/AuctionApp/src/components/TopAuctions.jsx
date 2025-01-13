@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const TopAuctions = () => {
 
-    const[products, setProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const navigate = useNavigate()
 
-    useEffect(() => {
-        fetch('http://localhost:8000/api/products/')
-        .then((response) => response.json())
-        .then((data) => setProducts(data.slice(0, 8)))
-        .catch((error) => console.error('Error fetching products:', error))
-    },[])
+  useEffect(() => {
+    fetch('http://localhost:8000/api/products/')
+      .then((response) => response.json())
+      .then((data) => setProducts(data.slice(0, 8)))
+      .catch((error) => console.error('Error fetching products:', error))
+  }, [])
 
   return (
-<div className="flex flex-col items-center my-20 gap-2 text-gray-900" id='auctions'>
-      <h1 className="text-3xl font-medium">Featured Auctions</h1>
-      <p className='sm:w-1/3 text-sm text-center mb-8'>Discover an Exciting Range of Premium Auction Listings, Exclusive Deals for Every Enthusiast and Collector!</p>
+    <div className="flex flex-col my-20 gap-2 text-gray-900" id='auctions'>
+      <div className='flex flex-col items-center gap-2'>
+        <h1 className="text-3xl font-medium text-center">Featured Auctions</h1>
+        <p className='sm:w-1/3 text-sm text-center mb-8'>Discover an Exciting Range of Premium Auction Listings, Exclusive Deals for Every Enthusiast and Collector!</p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         {products.map((product) => (
           <div
@@ -41,14 +46,18 @@ const TopAuctions = () => {
               </p>
             </div>
             <div className="p-1 flex justify-end">
-              <button className="w-1/2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors">
+              <button onClick={() => navigate(`/product/${product.id}`)} className="w-1/2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors">
                 Bid Now
               </button>
             </div>
           </div>
         ))}
       </div>
+      <div className='flex flex-row justify-end'>
+        <button onClick={()=>navigate('/auctions')} className='bg-blue-100 px-7 py-2 rounded-lg text-sm'>More</button>
+      </div>
     </div>
+
   )
 }
 
