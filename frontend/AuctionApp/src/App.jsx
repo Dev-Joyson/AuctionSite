@@ -10,8 +10,10 @@ import Product from './pages/Product';
 
 function App() {
   return (
+    <div>
+    <Navbar />
     <div className='mx-4 sm:mx-[5%]'>
-      <Navbar />
+      
         <Routes>
           <Route path='/' element={<Home />}/>
           <Route path='/auctions' element={<Auction />} />
@@ -19,6 +21,7 @@ function App() {
           <Route path='/product/:id' element={<Product />} />
         </Routes>
       <Footer />
+    </div>
     </div>
   );
 }

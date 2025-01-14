@@ -120,12 +120,12 @@ const Auction = () => {
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white shadow-md rounded-lg overflow-hidden hover:translate-y-[-5px] transition-all duration-500 flex flex-col justify-between"
+                className="bg-white shadow-md rounded-lg overflow-hidden hover:translate-y-[-5px] transition-all duration-500 flex flex-col justify-between p-1"
               >
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-48 object-cover rounded-lg"
                 />
                 <div className="p-2 flex flex-col flex-grow">
                   <h2 className="text-lg font-medium mb-2">{product.name}</h2>
