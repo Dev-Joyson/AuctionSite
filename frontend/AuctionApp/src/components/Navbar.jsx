@@ -21,7 +21,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className={`flex items-center justify-between text-base py-4 mb-5 bg-white sticky top-0 z-50 shadow-sm ${scrolled ? 'bg-opacity-80 backdrop-blur-lg' : ''}`}>
+    <div className={`flex items-center justify-between text-base py-4 sm:px-[5%] mb-5 bg-white sticky top-0 z-50 shadow-sm ${scrolled ? 'bg-opacity-80 backdrop-blur-lg' : ''}`}>
       <h1 onClick={() => navigate("/")} className="cursor-pointer text-primary text-3xl font-bold">
         BestBid
       </h1>
