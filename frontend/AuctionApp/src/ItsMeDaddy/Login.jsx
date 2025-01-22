@@ -25,8 +25,10 @@ const Login = ({ onLogin }) => {
         const data = await response.json();
         localStorage.setItem("token", data.token);
         localStorage.setItem("userRole", data.user_role);
+        localStorage.setItem("userId", data.user_id); // Save user ID to localStorage
         onLogin(data.user_role);
-      } else {
+    }
+     else {
         const errorData = await response.json();
         setError(errorData.error || "Login failed. Please try again.");
       }
