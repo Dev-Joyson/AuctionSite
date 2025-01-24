@@ -181,7 +181,6 @@ class UserDetailView(APIView):
 
 
 
-
 @api_view(['POST'])
 def register_user(request):
     if request.method == 'POST':
