@@ -22,3 +22,11 @@ class AuctionAdmin(admin.ModelAdmin):
     list_display = ('product', 'start_time', 'end_time', 'status', 'created_at')
     list_filter = ('status', 'created_at')
     search_fields = ('product__name',)
+
+from .models import Bid
+
+@admin.register(Bid)
+class BidAdmin(admin.ModelAdmin):
+    list_display = ('user', 'auction', 'bid_amount', 'bid_time')
+    list_filter = ('auction', 'bid_time')
+    search_fields = ('user__username', 'auction__product__name')

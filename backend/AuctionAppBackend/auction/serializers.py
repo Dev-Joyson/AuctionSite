@@ -1,6 +1,6 @@
 from rest_framework import serializers, viewsets, permissions
 from django.contrib import admin
-from .models import Product, User, Auction
+from .models import Product, User, Auction, Bid
 
 # SERIALIZERS
 
@@ -24,3 +24,13 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+
+
+
+class BidSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = Bid
+        fields = ['id', 'auction', 'bid_amount', 'bid_time', 'user', 'username']
+        read_only_fields = ['user', 'bid_time']
