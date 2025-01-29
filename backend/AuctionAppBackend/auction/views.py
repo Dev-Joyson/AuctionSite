@@ -34,31 +34,38 @@ class ProductDetailView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, pk):
+        """Retrieve a product along with its auction status."""
         product = get_object_or_404(Product, pk=pk)
         serializer = ProductSerializer(product)
         return Response(serializer.data)
 
-    def put(self, request, pk):
+    def update_product(self, request, pk, partial=False):
+        """Helper function to handle both PUT and PATCH requests."""
         product = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(product, data=request.data)
+        serializer = ProductSerializer(product, data=request.data, partial=partial)
         if serializer.is_valid():
             serializer.validated_data.setdefault('category', 'others')
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, pk):
+        """Fully update a product (requires all fields)."""
+        return self.update_product(request, pk, partial=False)
+
     def patch(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(product, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        """Partially update a product (allows updating selected fields)."""
+        return self.update_product(request, pk, partial=True)
 
     def delete(self, request, pk):
+        """Delete a product and its associated auction."""
         product = get_object_or_404(Product, pk=pk)
+        
+        # Delete any auction linked to this product
+        Auction.objects.filter(product=product).delete()
+        
         product.delete()
-        return Response({"message": "Product deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Product and its auction deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 
 # Auction Views

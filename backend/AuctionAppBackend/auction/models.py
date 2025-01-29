@@ -72,13 +72,18 @@ class Auction(models.Model):
 
 
 class Bid(models.Model):
+    bid_id = models.BigAutoField(primary_key=True)  # Set as primary key
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bids")
-    auction = models.ForeignKey('Auction', on_delete=models.CASCADE, related_name="bids",null=True)  # Ensure this field exists
+    auction = models.ForeignKey('Auction', on_delete=models.CASCADE, related_name="bids", null=True)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="bids")
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     bid_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-bid_time']
+        ordering = ['-bid_time']  # Sort by newest bid first
 
     def __str__(self):
-        return f"{self.user.username} - {self.bid_amount}"
+        return f"{self.user.username} - {self.bid_amount} for {self.product.name}"
+
+
+
