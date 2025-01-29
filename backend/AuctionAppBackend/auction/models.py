@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
@@ -60,24 +61,24 @@ class User(AbstractBaseUser):
         return self.email
 
 class Auction(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('active', 'Active'),
-        ('held', 'Held'),
-        ('finished', 'Finished'),
-    ]
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="auctions")
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=10, choices=[('pending', 'Pending'), ('active', 'Active'), ('finished', 'Finished')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Auction for {self.product.name}"
+
+
 class Bid(models.Model):
-    bid_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bids')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='bids')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bids")
+    auction = models.ForeignKey('Auction', on_delete=models.CASCADE, related_name="bids",null=True)  # Ensure this field exists
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     bid_time = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-bid_time']
+
     def __str__(self):
-        return f"Bid {self.bid_id} - {self.user.email} - {self.product.name}"
+        return f"{self.user.username} - {self.bid_amount}"
