@@ -171,23 +171,28 @@ def register_user(request):
         return Response({"message": "User created successfully!"}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+User = get_user_model()
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
     email = request.data.get('email')
     password = request.data.get('password')
 
-    user = authenticate(email=email, password=password)
-    if user:
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({
-            "token": token.key,
-            "user_id": user.id,  # Include user_id in the response
-            "user_role": user.user_role,
-            "message": "Login successful"
-        }, status=status.HTTP_200_OK)
-    return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        user = User.objects.get(email=email)
+        if not user.check_password(password):
+            return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)
 
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({
+        "token": token.key,
+        "user_id": user.id,
+        "user_role": user.user_role,
+        "message": "Login successful"
+    }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
