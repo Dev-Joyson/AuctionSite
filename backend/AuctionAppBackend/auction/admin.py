@@ -27,6 +27,6 @@ from .models import Bid
 
 @admin.register(Bid)
 class BidAdmin(admin.ModelAdmin):
-    list_display = ('user', 'auction', 'bid_amount', 'bid_time')  # Ensure these fields exist in the model
-    list_filter = ('auction', 'bid_time')  # Filter by valid fields
-    search_fields = ('user__username', 'auction__product__name')  # Allow searching by related fields
+    list_display = ('user', 'product', 'bid_amount', 'bid_time')
+    list_filter = ('product', 'bid_time')
+    search_fields = ('user__username', 'product__name')
