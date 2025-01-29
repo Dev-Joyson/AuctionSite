@@ -177,6 +177,7 @@ def login_user(request):
             "token": token.key,
             "user_id": user.id,  # Include user_id in the response
             "user_role": user.user_role,
+            "first_name": user.first_name,
             "message": "Login successful"
         }, status=status.HTTP_200_OK)
     return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)

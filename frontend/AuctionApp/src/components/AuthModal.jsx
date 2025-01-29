@@ -5,6 +5,17 @@ import RegisterForm from "./RegisterForm";
 
 const AuthModal = ({ closeModal }) => {
   const [isRegister, setIsRegister] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleSwitchToLogin = () => {
+    setIsRegister(false);
+    setSuccessMessage("Registration successful! Please log in.");
+  };
+
+  const handleSwitchToRegister = () => {
+    setIsRegister(true);
+    setSuccessMessage(""); // Reset success message when switching
+  };
 
   return (
     <motion.div
@@ -15,18 +26,24 @@ const AuthModal = ({ closeModal }) => {
       onClick={closeModal}
     >
       <motion.div
-        className="bg-white p-5 rounded-lg shadow-lg w-[450px]"
+        className="bg-white p-6 rounded-lg shadow-lg w-[450px]"
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -100, opacity: 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold mb-4 text-center">{isRegister ? "Register" : "Login"}</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">
+          {isRegister ? "Register" : "Login"}
+        </h2>
         {isRegister ? (
-          <RegisterForm switchToLogin={() => setIsRegister(false)} />
+          <RegisterForm switchToLogin={handleSwitchToLogin} />
         ) : (
-          <LoginForm switchToRegister={() => setIsRegister(true)} />
+          <LoginForm
+            switchToRegister={handleSwitchToRegister}
+            successMessage={successMessage}
+            closeModal={closeModal} // Close modal after login
+          />
         )}
       </motion.div>
     </motion.div>
