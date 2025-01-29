@@ -18,14 +18,17 @@ const Product = () => {
   }
 
   return (
-    <div className="container mx-auto mt-10 p-5">
+    // <div className="container mx-auto mt-10 p-5">
       <div className="flex flex-col sm:flex-row gap-10">
+        <div>
         <img
-          src={product.image}
-          alt={product.name}
-          className="w-full sm:w-1/2 h-64 object-cover"
-        />
-        <div className="flex flex-col">
+            src={product.image}
+            alt={product.name}
+            className="w-1/3 rounded-xl"
+          />
+        </div>
+
+        <div className="flex flex-col w-1/2">
           <h1 className="text-2xl font-bold mb-4">{product.name}</h1>
           <p className="text-gray-600 mb-4">{product.description}</p>
           <p className="text-gray-500 capitalize mb-4">Category: {product.category}</p>
@@ -37,7 +40,7 @@ const Product = () => {
           </button>
         </div>
       </div>
-    </div>
+    // </div>
   );
 };
 
