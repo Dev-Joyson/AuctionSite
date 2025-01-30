@@ -28,7 +28,7 @@ class AuctionAdmin(admin.ModelAdmin):
 
 @admin.register(Bid)
 class BidAdmin(admin.ModelAdmin):
+
     list_display = ('user', 'auction', 'bid_amount', 'bid_time')
     list_filter = ('auction', 'bid_time')
     search_fields = ('user__username', 'auction__name')
-    ordering = ('-bid_time',)  # Show most recent bids first

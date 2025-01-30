@@ -5,9 +5,13 @@ from .models import Product, User, Auction, Bid
 # SERIALIZERS
 
 class ProductSerializer(serializers.ModelSerializer):
+    auction_status = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ['id', 'name', 'description', 'starting_price', 'category', 'image', 'created_at', 'auction_status']
+    def get_auction_status(self, obj):
+        auction = Auction.objects.filter(product=obj).order_by('-start_time').first()
+        return auction.status if auction else "No Auction"
 
 
 class AuctionSerializer(serializers.ModelSerializer):
