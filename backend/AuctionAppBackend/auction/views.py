@@ -34,38 +34,31 @@ class ProductDetailView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, pk):
-        """Retrieve a product along with its auction status."""
         product = get_object_or_404(Product, pk=pk)
         serializer = ProductSerializer(product)
         return Response(serializer.data)
 
-    def update_product(self, request, pk, partial=False):
-        """Helper function to handle both PUT and PATCH requests."""
+    def put(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(product, data=request.data, partial=partial)
+        serializer = ProductSerializer(product, data=request.data)
         if serializer.is_valid():
             serializer.validated_data.setdefault('category', 'others')
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk):
-        """Fully update a product (requires all fields)."""
-        return self.update_product(request, pk, partial=False)
-
     def patch(self, request, pk):
-        """Partially update a product (allows updating selected fields)."""
-        return self.update_product(request, pk, partial=True)
+        product = get_object_or_404(Product, pk=pk)
+        serializer = ProductSerializer(product, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        """Delete a product and its associated auction."""
         product = get_object_or_404(Product, pk=pk)
-        
-        # Delete any auction linked to this product
-        Auction.objects.filter(product=product).delete()
-        
         product.delete()
-        return Response({"message": "Product and its auction deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "Product deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 
 # Auction Views
@@ -174,15 +167,17 @@ def register_user(request):
         return Response({"message": "User created successfully!"}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-User = get_user_model()
+
 
 User = get_user_model()  # ✅ Make sure this works with your custom user model
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow all users to access login
 def login_user(request):
     email = request.data.get('email')
     password = request.data.get('password')
+
 
     if not email or not password:
         return Response({"error": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -202,6 +197,7 @@ def login_user(request):
         "user_role": user.user_role if hasattr(user, 'user_role') else "user",  # Adjust for your model
         "message": "Login successful"
     }, status=status.HTTP_200_OK)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

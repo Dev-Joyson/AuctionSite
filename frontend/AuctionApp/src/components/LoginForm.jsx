@@ -19,7 +19,7 @@ const LoginForm = ({ successMessage, switchToRegister, closeModal }) => {
             const response = await fetch(`http://127.0.0.1:8000/api/users/${userId}/`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Token ${token}`,  // ✅ Use 'Token' (not 'Bearer')
+                    "Authorization": `Token ${token}`,  
                     "Content-Type": "application/json"
                 }
             });
