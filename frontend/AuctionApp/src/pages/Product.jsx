@@ -13,6 +13,7 @@ const Product = () => {
       .catch((error) => console.error('Error fetching product details:', error));
   }, [id]);
 
+  console.log(product);
   if (!product) {
     return <p>Loading...</p>;
   }
