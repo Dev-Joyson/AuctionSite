@@ -9,6 +9,7 @@ import Auction from './pages/Auction';
 import About from './pages/About';
 import Product from './pages/Product';
 import AdminDashboard from './pages/AdminDashboard';
+import Contact from './pages/Contact';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path='/' element={<Home />} />
           <Route path='/auctions' element={<Auction />} />
           <Route path='/about' element={<About />} />
+          <Route path='/contact' element={<Contact />} />
           <Route path='/product/:id' element={<Product />} />
           <Route path='/admin' element={<AdminDashboard />} />
         </Routes>
