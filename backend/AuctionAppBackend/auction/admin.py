@@ -28,12 +28,7 @@ class AuctionAdmin(admin.ModelAdmin):
 
 @admin.register(Bid)
 class BidAdmin(admin.ModelAdmin):
-    list_display = ('user', 'get_product_name', 'bid_amount', 'bid_time')
-    list_filter = ('auction__product', 'bid_time')  # Corrected to filter by the product through the auction
-    search_fields = ('user__username', 'auction__product__name')  # Searching by product name through auction
-    ordering = ('-bid_time',)  # Show most recent bids first
 
-    def get_product_name(self, obj):
-        return obj.auction.product.name  # Accessing product name via the related auction
-    get_product_name.admin_order_field = 'auction__product__name'  # Allow sorting by product name
-    get_product_name.short_description = 'Product'  # Display name in admin
+    list_display = ('user', 'auction', 'bid_amount', 'bid_time')
+    list_filter = ('auction', 'bid_time')
+    search_fields = ('user__username', 'auction__name')

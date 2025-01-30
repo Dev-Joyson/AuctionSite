@@ -8,6 +8,7 @@ import Auction from './pages/Auction';
 import About from './pages/About';
 import Product from './pages/Product';
 import AdminDashboard from './pages/AdminDashboard';
+import Contact from './pages/Contact';
 
 function App() {
   // Directly getting the user role from localStorage
@@ -20,6 +21,7 @@ function App() {
     <div>
       <Navbar />
       
+
       <Routes>
         {/* If user is an Admin, redirect from "/" to "/admin" */}
         <Route 
@@ -37,6 +39,7 @@ function App() {
           element={userRole === 'Admin' ? <AdminDashboard /> : <Navigate to="/" replace />} 
         />
       </Routes>
+
 
       <Footer />
     </div>
