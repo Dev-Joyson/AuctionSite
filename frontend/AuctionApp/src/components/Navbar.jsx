@@ -35,13 +35,45 @@ const Navbar = () => {
   }, []);
 
   // Function to handle logout
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('profileImage');
-    setToken(null);
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token'); // Retrieve token from localStorage
 
-    navigate("/");
-  };
+    if (!token) {
+        console.warn("No token found, user may already be logged out.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/logout/", {
+            method: "POST",
+            headers: {
+                "Authorization": `Token ${token}`,  // ✅ Use 'Token' prefix (not 'Bearer')
+                "Content-Type": "application/json",
+            }
+        });
+
+        if (response.ok) {
+            console.log("Logout successful");
+        } else {
+            console.error("Logout failed:", await response.text()); // Debug response
+        }
+    } catch (error) {
+        console.error("Error during logout:", error);
+    }
+
+    // ✅ Clear user data after logout (whether API call was successful or not)
+    localStorage.removeItem('token');
+    localStorage.removeItem('firstname');
+    localStorage.removeItem('lastname');
+    localStorage.removeItem('email');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('profileImage');
+
+    setToken(null); // Update state to reflect logout
+    navigate("/"); // Redirect to homepage
+    window.location.reload();
+};
+
 
   return (
     <>

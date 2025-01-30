@@ -136,9 +136,12 @@ class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
+        if request.user.id != pk:  # ✅ Prevents users from fetching other users' data
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        
         user = get_object_or_404(get_user_model(), pk=pk)
         serializer = UserSerializer(user)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         user = get_object_or_404(get_user_model(), pk=pk)
@@ -173,24 +176,30 @@ def register_user(request):
 
 User = get_user_model()
 
+User = get_user_model()  # ✅ Make sure this works with your custom user model
+
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([AllowAny])  # Allow all users to access login
 def login_user(request):
     email = request.data.get('email')
     password = request.data.get('password')
 
-    try:
-        user = User.objects.get(email=email)
-        if not user.check_password(password):
-            return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)
-    except User.DoesNotExist:
+    if not email or not password:
+        return Response({"error": "Email and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # ✅ Use Django's built-in authentication (ensures proper checks)
+    user = authenticate(username=email, password=password)
+    
+    if user is None:
         return Response({"error": "Invalid email or password"}, status=status.HTTP_400_BAD_REQUEST)
 
+    # ✅ Generate token for authenticated user
     token, _ = Token.objects.get_or_create(user=user)
+
     return Response({
         "token": token.key,
         "user_id": user.id,
-        "user_role": user.user_role,
+        "user_role": user.user_role if hasattr(user, 'user_role') else "user",  # Adjust for your model
         "message": "Login successful"
     }, status=status.HTTP_200_OK)
 
@@ -198,6 +207,7 @@ def login_user(request):
 @permission_classes([IsAuthenticated])
 def logout_user(request):
     try:
+        # Deletes the user's authentication token
         request.user.auth_token.delete()
         return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
     except Exception as e:
