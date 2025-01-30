@@ -5,8 +5,10 @@ import TopAuctions from '../components/TopAuctions'
 const Home = () => {
   return (
     <div>
+      <div className='mx-4 sm:mx-[5%]'>
       <Hero />
       <TopAuctions />
+      </div>
     </div>
   )
 }

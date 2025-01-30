@@ -49,6 +49,7 @@ const Auction = () => {
   };
 
   return (
+    <div className='mx-4 sm:mx-[5%]'>
     <div>
 
       <div className='flex flex-col items-center'>
@@ -153,6 +154,7 @@ const Auction = () => {
         </div>
 
       </div>
+    </div>
     </div>
   );
 };
