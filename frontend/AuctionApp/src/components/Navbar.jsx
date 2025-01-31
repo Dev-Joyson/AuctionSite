@@ -11,11 +11,17 @@ const Navbar = () => {
   const [showModal, setShowModal] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [firstName, setFirstName] = useState("");
+  const [userID, setUserID] = useState("");
 
   useEffect(() => {
     const storedFirstName = localStorage.getItem("firstname");
+    const userID = localStorage.getItem("userId");
+
     if (storedFirstName) {
       setFirstName(storedFirstName);
+    }
+    if (userID) {
+      setUserID(userID);
     }
     const handleScroll = () => {
       setScrolled(window.scrollY > 0);
@@ -108,7 +114,7 @@ const Navbar = () => {
               <img className='w-2.5' src={arrow} alt="Dropdown" />
               <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
                 <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
-                  <p onClick={() => navigate('my-profile')} className='hover:text-black cursor'>My Profile</p>
+                  <p onClick={() => navigate(`profile/${userID}`)} className='hover:text-black cursor'>My Profile</p>
                   <p onClick={() => navigate('my-appointments')} className='hover:text-black cursor'>My Appointments</p>
                   <p onClick={handleLogout} className='hover:text-black cursor'>Logout</p>
                 </div>

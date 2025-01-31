@@ -9,6 +9,7 @@ import About from './pages/About';
 import Product from './pages/Product';
 import AdminDashboard from './pages/AdminDashboard';
 import Contact from './pages/Contact';
+import UserProfile from './pages/UserProfile';
 
 function App() {
   // Directly getting the user role from localStorage
@@ -32,6 +33,7 @@ function App() {
         <Route path='/auctions' element={<Auction />} />
         <Route path='/about' element={<About />} />
         <Route path='/product/:id' element={<Product />} />
+        <Route path='/profile/:id' element={<UserProfile />} />
         
         {/* Ensure only Admin users can access the Admin Dashboard */}
         <Route 
