@@ -26,11 +26,13 @@ const LoginForm = ({ successMessage, switchToRegister, closeModal }) => {
 
             if (response.ok) {
                 const userData = await response.json();
+                console.log("Fetched User Data:", userData); 
 
                 // ✅ Store user details in localStorage
                 localStorage.setItem("firstname", userData.first_name);
                 localStorage.setItem("lastname", userData.last_name);
                 localStorage.setItem("email", userData.email);
+                localStorage.setItem("userId", userData.id);
 
                 console.log("User Details Stored in localStorage:");
                 console.log("First Name:", localStorage.getItem("firstname"));

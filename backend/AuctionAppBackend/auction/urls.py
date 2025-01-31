@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import AuctionDetailView, AuctionListCreateView, BidDetailView, BidListCreateView, ProductDetailView, ProductListCreateView, UserDetailView, UserListCreateView, login_user, logout_user, register_user
+from .views import AuctionDetailView, AuctionListCreateView, BidDetailView, BidListCreateView, ProductDetailView, ProductListCreateView, UserDetailView, UserListCreateView, login_user, logout_user, register_user, UserBidsView
 
 urlpatterns = [
     path('products/', ProductListCreateView.as_view(), name='product-list-create'),  # Endpoint to list and create products
@@ -15,4 +15,5 @@ urlpatterns = [
     path('logout/', logout_user, name='logout-user'),
     path('auctions/<int:auction_id>/bids/', BidListCreateView.as_view(), name='bid-list-create'),
     path('bids/<int:pk>/', BidDetailView.as_view(), name='bid-detail'),
+    path('users/<int:user_id>/bids/', UserBidsView.as_view(), name='user-bids'),
 ]

@@ -72,8 +72,10 @@ class Auction(models.Model):
 
 
 class Bid(models.Model):
+    bid_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bids")
     auction = models.ForeignKey('Auction', on_delete=models.CASCADE, related_name="bids",null=True)  # Ensure this field exists
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name="bids") 
     bid_amount = models.DecimalField(max_digits=10, decimal_places=2)
     bid_time = models.DateTimeField(auto_now_add=True)
 

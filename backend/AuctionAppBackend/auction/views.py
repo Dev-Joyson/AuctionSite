@@ -11,6 +11,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import authenticate
 from .permissions import IsOwnerOrReadOnly, IsAuthenticatedOrReadOnly
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from django.shortcuts import get_object_or_404
 
 # Product Views
 class ProductListCreateView(APIView):
@@ -217,10 +218,12 @@ class BidListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         auction_id = self.kwargs['auction_id']
-        return Bid.objects.filter(auction_id=auction_id)
+        return Bid.objects.filter(auction_id=auction_id).order_by('-bid_amount')[:5]
+
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        auction = get_object_or_404(Auction, id=self.kwargs['auction_id'])  # ✅ Ensure auction exists
+        serializer.save(user=self.request.user, auction=auction)  # ✅ Assign auction before saving
 
 
 class BidDetailView(RetrieveUpdateDestroyAPIView):
@@ -229,3 +232,14 @@ class BidDetailView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Bid.objects.all()
+
+
+class UserBidsView(APIView):
+    permission_classes = [IsAuthenticated]  # Allow only authenticated users
+
+    def get(self, request, user_id):
+        # Filter bids by user ID
+        bids = Bid.objects.filter(user_id=user_id)
+        # Serialize the bids
+        serializer = BidSerializer(bids, many=True)
+        return Response(serializer.data)
