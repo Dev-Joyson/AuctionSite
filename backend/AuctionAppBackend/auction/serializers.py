@@ -4,18 +4,30 @@ from .models import Product, User, Auction, Bid
 
 # SERIALIZERS
 
+from rest_framework import serializers
+from .models import Product, Auction
+
 class ProductSerializer(serializers.ModelSerializer):
     auction_status = serializers.SerializerMethodField()
     end_time = serializers.SerializerMethodField()
+    auction_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'starting_price', 'category', 'image', 'created_at', 'auction_status','end_time']
+        fields = ['id', 'name', 'description', 'starting_price', 'category', 'image', 'created_at', 'auction_status', 'end_time', 'auction_id']
+
     def get_auction_status(self, obj):
         auction = Auction.objects.filter(product=obj).order_by('-start_time').first()
         return auction.status if auction else "No Auction"
-    def get_end_time(self,obj):
+
+    def get_end_time(self, obj):
         auction = Auction.objects.filter(product=obj).order_by('-start_time').first()
         return auction.end_time if auction else "No end time"
+
+    def get_auction_id(self, obj):
+        auction = Auction.objects.filter(product=obj).order_by('-start_time').first()
+        return auction.id if auction else "No auction"
+
 
 class AuctionSerializer(serializers.ModelSerializer):
     class Meta:

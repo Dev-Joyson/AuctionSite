@@ -5,6 +5,8 @@ const Product = () => {
   const { id } = useParams(); // Get the product ID from the URL
   const [product, setProduct] = useState(null);
   const [remainingTime, setRemainingTime] = useState(''); // State to hold remaining time
+  const [bidAmount, setBidAmount] = useState(''); // State to handle bid input
+  const userId = 1; // Replace this with actual user authentication logic
 
   useEffect(() => {
     // Fetch product details using the ID
@@ -36,11 +38,41 @@ const Product = () => {
       const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
       const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-      setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      setRemainingTime(`${days}d ${hours}h ${minutes}m`);
     } else {
       setRemainingTime('Auction ended');
     }
+  };
+
+  const handleBidInput = (event) => {
+    setBidAmount(event.target.value);
+  };
+
+  const handlePlaceBid = () => {
+
+    if (!product || !product.auction_id) {
+      console.error('Auction ID not found');
+      return;
+    }
+
+    const bidData = {
+      user_id: userId,
+      amount: bidAmount,
+    };
+
+    fetch(`http://localhost:8000/api/auctions/${product.auction_id}/bids/`, {
+      method: 'POST',
+      headers: {
+        
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bidData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Bid placed successfully:', data);
+      })
+      .catch((error) => console.error('Error placing bid:', error));
   };
 
   if (!product) {
@@ -84,10 +116,13 @@ const Product = () => {
             <input
               type="number"
               placeholder="Enter your bid"
+              value={bidAmount}
+              onChange={handleBidInput}
               className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
             {/* Place bid button */}
             <button
+              onClick={handlePlaceBid}
               className="bg-blue-600 w-full text-white py-3 px-4 rounded-xl font-semibold hover:bg-blue-700 transition"
             >
               Place Your Bid
