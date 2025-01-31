@@ -198,6 +198,7 @@ const Product = () => {
     // You can add further logic to place the bid using bidAmount
   };
 
+  console.log(product);
   if (!product) {
     return <p>Loading...</p>;
   }
