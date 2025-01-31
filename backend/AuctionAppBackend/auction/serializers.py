@@ -82,7 +82,7 @@ class AuctionSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'username', 'password', 'first_name', 'last_name', 'address', 'nic_number', 'profile_image']
+        fields = ['id', 'email', 'username', 'password', 'first_name', 'last_name', 'address', 'nic_number', 'profile_image']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -92,9 +92,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class BidSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
     username = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model = Bid
-        fields = ['id', 'auction', 'bid_amount', 'bid_time', 'user', 'username']
+        fields = ['id', 'auction','product', 'bid_amount', 'bid_time', 'user', 'username']
         read_only_fields = ['user', 'bid_time']
