@@ -4,9 +4,6 @@ from .models import Product, User, Auction, Bid
 
 # SERIALIZERS
 
-from rest_framework import serializers
-from .models import Product, Auction
-
 class ProductSerializer(serializers.ModelSerializer):
     auction_status = serializers.SerializerMethodField()
     end_time = serializers.SerializerMethodField()
@@ -28,11 +25,59 @@ class ProductSerializer(serializers.ModelSerializer):
         auction = Auction.objects.filter(product=obj).order_by('-start_time').first()
         return auction.id if auction else "No auction"
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.starting_price = validated_data.get('starting_price', instance.starting_price)
+        instance.category = validated_data.get('category', instance.category)
+        instance.image = validated_data.get('image', instance.image)
+        
+        # Update auction-related fields if they are provided
+        auction = Auction.objects.filter(product=instance).order_by('-start_time').first()
+        if auction:
+            auction.status = validated_data.get('auction_status', auction.status)
+            auction.end_time = validated_data.get('end_time', auction.end_time)
+            auction.save()
+
+        instance.save()
+
+        return instance
+    def create(self, validated_data):
+    # Create the product
+        product = Product.objects.create(**validated_data)
+
+        # Optionally create an auction if needed
+        Auction.objects.create(
+            product=product,
+            status='pending',
+            start_time=validated_data.get('start_time', timezone.now()),  # Adjust for your start time logic
+            end_time=validated_data.get('end_time', timezone.now() + timedelta(days=7))  # Default end time logic
+        )
+        return product
+
+
+
+from rest_framework import serializers
+from .models import Auction
 
 class AuctionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Auction
-        fields = '__all__'
+        fields = ['id', 'product', 'start_time', 'end_time', 'status', 'created_at']
+
+    def update(self, instance, validated_data):
+        # You can add custom logic for updating auction fields here if needed
+        print("Updating auction:", instance)
+        
+        # Update auction status and end_time
+        instance.status = validated_data.get('status', instance.status)
+        instance.end_time = validated_data.get('end_time', instance.end_time)
+
+        # Save the updated instance
+        instance.save()
+        return instance
+
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

@@ -16,8 +16,6 @@ const AdminDashboard = () => {
         return <UserManagement />;
       case 'products':
         return <ProductManagement />;
-      case 'addProduct':
-        return <AddProduct />;
       default:
         return <DashboardOverview />;
     }
@@ -38,9 +36,7 @@ const AdminDashboard = () => {
           <button className="p-4 flex items-center" onClick={() => setActiveTab('products')}>
             <FaGavel className="mr-2" /> Manage Products
           </button>
-          <button className="p-4 flex items-center" onClick={() => setActiveTab('addProduct')}>
-            <FaGavel className="mr-2" /> Add Product
-          </button>
+          
         </div>
       </div>
 

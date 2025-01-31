@@ -30,35 +30,97 @@ class ProductListCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from .models import Product
+from .serializers import ProductSerializer
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from .models import Product
+from .serializers import ProductSerializer
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
+
 class ProductDetailView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(product)
-        return Response(serializer.data)
+        try:
+            # Retrieve product by primary key and serialize it
+            product = get_object_or_404(Product, pk=pk)
+            serializer = ProductSerializer(product)
+            return Response(serializer.data)
+        except Exception as e:
+            logger.error(f"Error fetching product {pk}: {e}")
+            return Response({"error": "Product not found or an error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(product, data=request.data)
-        if serializer.is_valid():
-            serializer.validated_data.setdefault('category', 'others')
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # Retrieve the product and validate the provided data
+            product = get_object_or_404(Product, pk=pk)
+            serializer = ProductSerializer(product, data=request.data)
+
+            # Validate the data
+            if serializer.is_valid():
+                # Set default values for missing fields
+                serializer.validated_data.setdefault('category', 'others')
+                serializer.validated_data.setdefault('auction_status', 'pending')
+                serializer.validated_data.setdefault('end_time', None)  # Set None if not provided
+
+                # Save the product with updated data
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        except Exception as e:
+            logger.error(f"Error updating product {pk}: {e}")
+            return Response({"error": "An error occurred while updating the product."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def patch(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(product, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # Partial update, update only the fields provided
+            product = get_object_or_404(Product, pk=pk)
+            serializer = ProductSerializer(product, data=request.data, partial=True)
+
+            # Validate the data
+            if serializer.is_valid():
+                # Ensure missing auction-related fields are set to defaults
+                if 'category' not in request.data:
+                    serializer.validated_data.setdefault('category', 'others')
+                if 'auction_status' not in request.data:
+                    serializer.validated_data.setdefault('auction_status', 'pending')
+                if 'end_time' not in request.data:
+                    serializer.validated_data.setdefault('end_time', None)
+
+                # Save the updated product
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Error updating product {pk} via PATCH: {e}")
+            return Response({"error": "An error occurred while partially updating the product."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        product.delete()
-        return Response({"message": "Product deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        try:
+            # Delete the product from the database
+            product = get_object_or_404(Product, pk=pk)
+            product.delete()
+            return Response({"message": "Product deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            logger.error(f"Error deleting product {pk}: {e}")
+            return Response({"error": "An error occurred while deleting the product."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # Auction Views
@@ -79,34 +141,27 @@ class AuctionListCreateView(APIView):
 
 
 class AuctionDetailView(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Update based on your permissions
 
     def get(self, request, pk):
+        # Retrieve the auction by primary key
         auction = get_object_or_404(Auction, pk=pk)
         serializer = AuctionSerializer(auction)
         return Response(serializer.data)
 
-    def put(self, request, pk):
-        auction = get_object_or_404(Auction, pk=pk)
-        serializer = AuctionSerializer(auction, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     def patch(self, request, pk):
+        # Retrieve the auction by primary key
         auction = get_object_or_404(Auction, pk=pk)
+
+        # Serialize the data and validate
         serializer = AuctionSerializer(auction, data=request.data, partial=True)
+        
         if serializer.is_valid():
+            # Save the updated auction fields
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        auction = get_object_or_404(Auction, pk=pk)
-        auction.delete()
-        return Response({"message": "Auction deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
-
 
 # User Views
 class UserListCreateView(APIView):
