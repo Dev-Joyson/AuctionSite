@@ -61,7 +61,7 @@ class ProductDetailView(APIView):
             return Response(serializer.data)
         except Exception as e:
             logger.error(f"Error fetching product {pk}: {e}")
-            return Response({"error": "Product not found or an error occurred"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": "Product not found or an error occurred while fetching the product."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request, pk):
         try:
@@ -84,7 +84,7 @@ class ProductDetailView(APIView):
         
         except Exception as e:
             logger.error(f"Error updating product {pk}: {e}")
-            return Response({"error": "An error occurred while updating the product."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": "An error occurred while updating the product. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def patch(self, request, pk):
         try:
@@ -110,7 +110,7 @@ class ProductDetailView(APIView):
 
         except Exception as e:
             logger.error(f"Error updating product {pk} via PATCH: {e}")
-            return Response({"error": "An error occurred while partially updating the product."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": "An error occurred while partially updating the product. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, pk):
         try:
@@ -121,8 +121,7 @@ class ProductDetailView(APIView):
 
         except Exception as e:
             logger.error(f"Error deleting product {pk}: {e}")
-            return Response({"error": "An error occurred while deleting the product."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+            return Response({"error": "An error occurred while deleting the product. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # Auction Views
 class AuctionListCreateView(APIView):
@@ -298,3 +297,4 @@ class UserBidsView(APIView):
         # Serialize the bids
         serializer = BidSerializer(bids, many=True)
         return Response(serializer.data)
+

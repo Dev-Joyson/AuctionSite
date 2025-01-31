@@ -1,3 +1,6 @@
+from datetime import timedelta
+from django.utils import timezone
+
 from rest_framework import serializers, viewsets, permissions
 from django.contrib import admin
 from .models import Product, User, Auction, Bid
@@ -42,8 +45,9 @@ class ProductSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
     def create(self, validated_data):
-    # Create the product
+        # Create the product
         product = Product.objects.create(**validated_data)
 
         # Optionally create an auction if needed
@@ -57,8 +61,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 
-from rest_framework import serializers
-from .models import Auction
 
 class AuctionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,16 +68,21 @@ class AuctionSerializer(serializers.ModelSerializer):
         fields = ['id', 'product', 'start_time', 'end_time', 'status', 'created_at']
 
     def update(self, instance, validated_data):
-        # You can add custom logic for updating auction fields here if needed
         print("Updating auction:", instance)
-        
-        # Update auction status and end_time
-        instance.status = validated_data.get('status', instance.status)
-        instance.end_time = validated_data.get('end_time', instance.end_time)
 
-        # Save the updated instance
+        # Make sure 'end_time' is valid and can be converted to a DateTime object
+        if 'end_time' in validated_data:
+            try:
+                # Ensure 'end_time' is a valid datetime string and can be parsed
+                instance.end_time = validated_data['end_time']
+            except ValueError:
+                raise serializers.ValidationError("Invalid date format for 'end_time'")
+
+        instance.status = validated_data.get('status', instance.status)
         instance.save()
         return instance
+
+
 
 
 
@@ -90,12 +97,12 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-
 class BidSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     username = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model = Bid
-        fields = ['id', 'auction','product', 'bid_amount', 'bid_time', 'user', 'username']
+        fields = ['id', 'auction', 'product', 'bid_amount', 'bid_time', 'user', 'username']
         read_only_fields = ['user', 'bid_time']
+

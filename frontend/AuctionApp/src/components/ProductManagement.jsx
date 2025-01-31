@@ -12,14 +12,15 @@ const ProductManagement = () => {
     category: 'others',
     image: '',
     auction_status: 'pending',
-    end_time: '',
+    end_time: '', // Default to empty
   });
 
   const token = localStorage.getItem('token'); // Retrieve token from localStorage
+  console.log(token)
   const apiUrl = 'http://127.0.0.1:8000/api/products/';
 
   // Fetch products from API
-  useEffect(() => {
+  const fetchProducts = () => {
     console.log("Fetching products...");
     axios
       .get(apiUrl, {
@@ -32,13 +33,25 @@ const ProductManagement = () => {
       .catch((error) => {
         console.error("Error fetching products:", error.response?.data || error.message);
       });
+  };
+
+  // Fetch products when the component mounts
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
   const handleOpenModal = (product = null) => {
     console.log("Opening modal", product ? `for product ID: ${product.id}` : "to add a new product");
     setCurrentProduct(product);
     setIsModalOpen(true);
+
     if (product) {
+      // If the product has an auction and end_time, format it correctly for the datetime-local input
+      const formattedEndTime = product.auction && product.auction.end_time
+        ? new Date(product.auction.end_time).toISOString().slice(0, 16)  // Convert to 'YYYY-MM-DDTHH:MM'
+        : '';  // If no end_time, leave it empty
+
+      // Populate the form with the product data when editing
       setFormData({
         name: product.name,
         description: product.description,
@@ -46,9 +59,10 @@ const ProductManagement = () => {
         category: product.category,
         image: product.image,
         auction_status: product.auction_status || 'pending',
-        end_time: product.auction ? product.auction.end_time : '', // Fetch end_time from the auction
+        end_time: formattedEndTime,  // Set the formatted end_time
       });
     } else {
+      // Clear form for new product
       setFormData({
         name: '',
         description: '',
@@ -56,7 +70,7 @@ const ProductManagement = () => {
         category: 'others',
         image: '',
         auction_status: 'pending',
-        end_time: '',
+        end_time: '', // Default to empty for new products
       });
     }
   };
@@ -76,28 +90,37 @@ const ProductManagement = () => {
     }));
   };
 
+  // Ensure 'end_time' is correctly formatted when submitting the form
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form data being submitted:", formData); // Log the form data
-    
+    console.log("Form data being submitted:", formData);
+
     // Data validation
     if (!formData.name || !formData.starting_price) {
       console.error("Validation failed: Name and Starting Price are required");
       return;
     }
 
-    console.log("Sending data:", formData); // Log the data being sent
+    // Ensure 'end_time' is correctly formatted to 'YYYY-MM-DDTHH:MM'
+    let formattedEndTime = formData.end_time;
+    if (formattedEndTime && typeof formattedEndTime === "string") {
+      // Convert to 'YYYY-MM-DDTHH:MM' (without seconds and timezone)
+      formattedEndTime = new Date(formattedEndTime).toISOString().slice(0, 16);  // Convert to 'YYYY-MM-DDTHH:MM'
+    }
+
+    const updatedFormData = { ...formData, end_time: formattedEndTime };
+
+    console.log("Sending data:", updatedFormData); // Log the data being sent
 
     if (currentProduct) {
       // Edit existing product
       console.log(`Editing product with ID: ${currentProduct.id}`);
       axios
-        .patch(`${apiUrl}${currentProduct.id}/`, formData, {
+        .patch(`${apiUrl}${currentProduct.id}/`, updatedFormData, {
           headers: { Authorization: `Token ${token}` },
         })
         .then((response) => {
-          console.log("API response after product update:", response);  // Log full response
-          // Check the response data before updating state
+          console.log("API response after product update:", response);
           if (response.status === 200 && response.data) {
             console.log("Product updated successfully:", response.data);
             setProducts((prevProducts) =>
@@ -106,15 +129,16 @@ const ProductManagement = () => {
               )
             );
 
-            // Optionally update auction-related fields after updating product
+            // Update auction-related fields after updating product
             if (response.data.auction_id) {
               updateAuction(response.data.auction_id, {
-                status: formData.auction_status,
-                end_time: formData.end_time,
+                status: updatedFormData.auction_status,
+                end_time: updatedFormData.end_time,  // Ensure it's a string here
               });
             }
 
             handleCloseModal();
+            fetchProducts(); // Re-fetch the products after update
           } else {
             console.error("Failed to update product, unexpected response:", response);
           }
@@ -126,7 +150,7 @@ const ProductManagement = () => {
       // Add new product
       console.log("Adding new product...");
       axios
-        .post(apiUrl, formData, {
+        .post(apiUrl, updatedFormData, {
           headers: { Authorization: `Token ${token}` },
         })
         .then((response) => {
@@ -136,12 +160,13 @@ const ProductManagement = () => {
           // After adding product, update auction with the data
           if (response.data.auction_id) {
             updateAuction(response.data.auction_id, {
-              status: formData.auction_status,
-              end_time: formData.end_time,
+              status: updatedFormData.auction_status,
+              end_time: updatedFormData.end_time,  // Ensure it's a string here
             });
           }
 
           handleCloseModal();
+          fetchProducts(); // Re-fetch the products after adding new one
         })
         .catch((error) => {
           console.error("Error adding the product:", error.response?.data || error.message);
@@ -160,6 +185,7 @@ const ProductManagement = () => {
         setProducts((prevProducts) =>
           prevProducts.filter((product) => product.id !== productId)
         );
+        fetchProducts(); // Re-fetch the products after deletion
       })
       .catch((error) => {
         console.error(`Error deleting product with ID: ${productId}:`, error.response?.data || error.message);
@@ -194,12 +220,12 @@ const ProductManagement = () => {
       <table className="w-full bg-white rounded-lg shadow-lg">
         <thead>
           <tr>
-            <th className="p-4 text-left">Image</th> {/* Added image column */}
+            <th className="p-4 text-left">Image</th>
             <th className="p-4 text-left">Name</th>
             <th className="p-4 text-left">Category</th>
             <th className="p-4 text-left">Price</th>
             <th className="p-4 text-left">Auction Status</th>
-            <th className="p-4 text-left">End Time</th> {/* Added end time column */}
+            <th className="p-4 text-left">End Time</th>
             <th className="p-4 text-left">Actions</th>
           </tr>
         </thead>
@@ -217,7 +243,7 @@ const ProductManagement = () => {
               <td className="p-4">{product.category}</td>
               <td className="p-4">{product.starting_price}</td>
               <td className="p-4">{product.auction_status}</td>
-              <td className="p-4">{product.end_time ? new Date(product.end_time).toLocaleString() : "N/A"}</td> {/* End time */}
+              <td className="p-4">{product.end_time ? new Date(product.end_time).toLocaleString() : "N/A"}</td>
               <td className="p-4">
                 <button
                   onClick={() => handleOpenModal(product)}
@@ -305,7 +331,7 @@ const ProductManagement = () => {
               <div className="mb-4">
                 <label className="block text-gray-700">Auction Status</label>
                 <select
-                  name="auction_status" // Update the name here to match the field
+                  name="auction_status"
                   value={formData.auction_status}
                   onChange={handleInputChange}
                   className="w-full p-2 border border-gray-300 rounded"
