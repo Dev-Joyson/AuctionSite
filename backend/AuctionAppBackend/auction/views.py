@@ -12,6 +12,8 @@ from rest_framework.authentication import authenticate
 from .permissions import IsOwnerOrReadOnly, IsAuthenticatedOrReadOnly
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from django.shortcuts import get_object_or_404
+from .models import User, Product, Auction
+from django.db.models import Count
 
 # Product Views
 class ProductListCreateView(APIView):
@@ -298,3 +300,25 @@ class UserBidsView(APIView):
         serializer = BidSerializer(bids, many=True)
         return Response(serializer.data)
 
+
+
+class DashboardStatsView(APIView):
+    def get(self, request, *args, **kwargs):
+        total_users = User.objects.count()
+        total_products = Product.objects.count()
+        active_auctions = Auction.objects.filter(status='active').count()
+        finished_auctions = Auction.objects.filter(status='finished').count()
+        
+        # Count products grouped by category
+        category_counts = Product.objects.values('category').annotate(count=Count('id')).order_by('category')
+        categories = [item['category'] for item in category_counts]
+        counts = [item['count'] for item in category_counts]
+
+        return Response({
+            "total_users": total_users,
+            "total_products": total_products,
+            "active_auctions": active_auctions,
+            "finished_auctions": finished_auctions,
+            "product_categories": categories,
+            "product_category_counts": counts,
+        })

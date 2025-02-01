@@ -1,20 +1,55 @@
-import React from 'react';
-import { Bar, Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, PieController, ArcElement } from 'chart.js';
+import React, { useState, useEffect } from "react";
+import { Bar, Pie } from "react-chartjs-2";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, PieController, ArcElement } from "chart.js";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, PieController, ArcElement);
 
 const DashboardOverview = () => {
+  // State for fetched data
+  const [stats, setStats] = useState({
+    total_users: 0,
+    total_products: 0,
+    active_auctions: 0,
+    finished_auctions: 0,
+    product_categories: [],
+    product_category_counts: []
+  });
 
-  // Data for Bar chart (Auction stats)
+  useEffect(() => {
+    // Fetch dashboard stats from the backend
+    const fetchDashboardStats = async () => {
+      try {
+        const authToken = localStorage.getItem("token");
+        const response = await fetch("http://localhost:8000/api/dashboard/", {
+          headers: {
+            "Authorization": `Token ${authToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch dashboard stats");
+        }
+
+        const data = await response.json();
+        setStats(data);
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      }
+    };
+
+    fetchDashboardStats();
+  }, []);
+
+  // Data for Bar chart (Product Category stats from backend)
   const barData = {
-    labels: ['Commodities', 'Electronics', 'Apparels', 'Vehicles', 'Property', 'Art', 'Others'],
+    labels: stats.product_categories,
     datasets: [
       {
-        label: 'Total Products by Category',
-        data: [10, 15, 8, 12, 6, 4, 9], // Example values
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
+        label: "Total Products by Category",
+        data: stats.product_category_counts, // Use the fetched counts
+        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
       },
     ],
@@ -32,12 +67,12 @@ const DashboardOverview = () => {
 
   // Data for Pie chart (Users distribution)
   const pieData = {
-    labels: ['Admin', 'Users'],
+    labels: ["Admin", "Users"],
     datasets: [
       {
-        data: [2, 98], // Example values (2 admins and 98 users)
-        backgroundColor: ['#36A2EB', '#FF6384'],
-        hoverBackgroundColor: ['#36A2EB', '#FF6384'],
+        data: [2, stats.total_users - 2], // Example values, adjust as needed
+        backgroundColor: ["#36A2EB", "#FF6384"],
+        hoverBackgroundColor: ["#36A2EB", "#FF6384"],
       },
     ],
   };
@@ -50,25 +85,25 @@ const DashboardOverview = () => {
         {/* Total Users Card */}
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-xl font-bold">Total Users</h3>
-          <p className="text-3xl font-semibold text-gray-800">100</p> {/* Example value */}
+          <p className="text-3xl font-semibold text-gray-800">{stats.total_users}</p>
         </div>
 
         {/* Total Products Card */}
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-xl font-bold">Total Products</h3>
-          <p className="text-3xl font-semibold text-gray-800">64</p> {/* Example value */}
+          <p className="text-3xl font-semibold text-gray-800">{stats.total_products}</p>
         </div>
 
         {/* Active Auctions Card */}
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-xl font-bold">Active Auctions</h3>
-          <p className="text-3xl font-semibold text-gray-800">12</p> {/* Example value */}
+          <p className="text-3xl font-semibold text-gray-800">{stats.active_auctions}</p>
         </div>
 
         {/* Finished Auctions Card */}
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h3 className="text-xl font-bold">Finished Auctions</h3>
-          <p className="text-3xl font-semibold text-gray-800">32</p> {/* Example value */}
+          <p className="text-3xl font-semibold text-gray-800">{stats.finished_auctions}</p>
         </div>
       </div>
 
