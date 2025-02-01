@@ -163,7 +163,7 @@ const Product = () => {
               <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
               <p className="text-gray-600 mb-4">{product.description}</p>
               <p className="text-gray-500 capitalize mb-4">Category: {product.category}</p>
-              <p className="text-green-600 text-xl font-semibold mb-4">Starting Price: €{product.starting_price}</p>
+              <p className="text-green-600 text-xl font-semibold mb-4">Starting Price: Rs {product.starting_price}</p>
             </div>
 
             {/* Bidding Options */}
@@ -190,7 +190,7 @@ const Product = () => {
                 <ul className="space-y-2">
                   {recentBids.map((bid, index) => (
                     <li key={index} className="text-gray-800 text-md">
-                      <strong>{index + 1}. {bid.username}</strong>: €{bid.bid_amount} at {new Date(bid.bid_time).toLocaleString()}
+                      <strong>{index + 1}. {bid.username}</strong>: Rs {bid.bid_amount} at {new Date(bid.bid_time).toLocaleString()}
                     </li>
                   ))}
                 </ul>

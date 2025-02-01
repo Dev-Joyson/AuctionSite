@@ -34,6 +34,7 @@ function App() {
         <Route path='/about' element={<About />} />
         <Route path='/product/:id' element={<Product />} />
         <Route path='/profile/:id' element={<UserProfile />} />
+        <Route path='/contact' element={<Contact />} />
         
         {/* Ensure only Admin users can access the Admin Dashboard */}
         <Route 

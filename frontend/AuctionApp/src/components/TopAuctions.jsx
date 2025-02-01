@@ -17,7 +17,7 @@ const TopAuctions = () => {
     <div className="flex flex-col my-20 gap-2 text-gray-900" id='auctions'>
       <div className='flex flex-col items-center gap-2'>
         <h1 className="text-3xl font-medium text-center">Featured Auctions</h1>
-        <p className='sm:w-1/3 text-sm text-center mb-8'>Discover an Exciting Range of Premium Auction Listings, Exclusive Deals for Every Enthusiast and Collector!</p>
+        <p className='sm:w-1/3 text-sm text-center mb-8 text-gray-600'>Discover an Exciting Range of Premium Auction Listings, Exclusive Deals for Every Enthusiast and Collector!</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
@@ -42,7 +42,7 @@ const TopAuctions = () => {
                 Category: {product.category}
               </p>
               <p className="text-sm font-semibold text-green-600 mt-2">
-                ${product.starting_price}
+                Rs {product.starting_price}
               </p>
             </div>
             <div className="p-1 flex justify-end">

@@ -50,111 +50,124 @@ const Auction = () => {
 
   return (
     <div className='mx-4 sm:mx-[5%]'>
-    <div>
-
-      <div className='flex flex-col items-center'>
-
-        {/* <p>Browse through the product categories.</p> */}
-
-        {/* Search Bar */}
-        <div className="flex justify-center mb-4 w-1/2">
-          <input
-            type="text"
-            placeholder="Search products by name..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-      </div>
-
-
-      <div className='flex flex-col sm:flex-row items-start gap-5 mt-5'>
-        {/* Categories List */}
-        <div className="flex flex-col gap-4 text-sm w-1/6">
-          <button
-            className={`px-4 py-2 rounded ${selectedCategory === '' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleCategoryClick('')}
-          >
-            All
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${selectedCategory === 'electronics' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleCategoryClick('electronics')}
-          >
-            Electronics
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${selectedCategory === 'antiques' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleCategoryClick('antiques')}
-          >
-            Antiques
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${selectedCategory === 'furniture' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleCategoryClick('furniture')}
-          >
-            Furniture
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${selectedCategory === 'jewelry' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleCategoryClick('jewelry')}
-          >
-            Jewelry
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${selectedCategory === 'collectibles' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleCategoryClick('collectibles')}
-          >
-            Collectibles
-          </button>
-        </div>
+      <div>
 
         <div className='flex flex-col items-center'>
 
+          {/* <p>Browse through the product categories.</p> */}
+
+          {/* Search Bar */}
+          <div className="flex justify-center mb-4 w-1/2">
+            <input
+              type="text"
+              placeholder="Search products by name..."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="w-full p-2 border border-gray-300 rounded"
+            />
+          </div>
+        </div>
 
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className='flex flex-col sm:flex-row items-start gap-5 mt-5'>
+          {/* Categories List */}
+          <div className="flex flex-col gap-4 text-sm w-1/6">
+            <button
+              className={`px-4 py-2 rounded ${selectedCategory === '' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleCategoryClick('')}
+            >
+              All
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${selectedCategory === 'commodities' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleCategoryClick('commodities')}
+            >
+              Commodities
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${selectedCategory === 'electronics' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleCategoryClick('electronics')}
+            >
+              Electronics
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${selectedCategory === 'apparels' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleCategoryClick('apparels')}
+            >
+              Apparels
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${selectedCategory === 'vehicles' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleCategoryClick('vehicles')}
+            >
+              Vehicles
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${selectedCategory === 'property' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleCategoryClick('property')}
+            >
+              Property
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${selectedCategory === 'art' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleCategoryClick('art')}
+            >
+              Art
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${selectedCategory === 'others' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleCategoryClick('others')}
+            >
+              Others
+            </button>
+          </div>
 
 
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white shadow-md rounded-lg overflow-hidden hover:translate-y-[-5px] transition-all duration-500 flex flex-col justify-between p-1"
-              >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <div className="p-2 flex flex-col flex-grow">
-                  <h2 className="text-lg font-medium mb-2">{product.name}</h2>
-                  <p className="text-sm text-gray-600 flex-grow">
-                    {product.description.length > 50
-                      ? `${product.description.substring(0, 50)}...`
-                      : product.description}
-                  </p>
-                  <p className="text-sm text-gray-500 capitalize mt-1">
-                    Category: {product.category}
-                  </p>
-                  <p className="text-sm font-semibold text-green-600 mt-2">
-                    ${product.starting_price}
-                  </p>
+          <div className='flex flex-col items-center'>
+
+
+
+            {/* Products Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-white shadow-md rounded-lg overflow-hidden hover:translate-y-[-5px] transition-all duration-500 flex flex-col justify-between p-1"
+                >
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <div className="p-2 flex flex-col flex-grow">
+                    <h2 className="text-lg font-medium mb-2">{product.name}</h2>
+                    <p className="text-sm text-gray-600 flex-grow">
+                      {product.description.length > 50
+                        ? `${product.description.substring(0, 50)}...`
+                        : product.description}
+                    </p>
+                    <p className="text-sm text-gray-500 capitalize mt-1">
+                      Category: {product.category}
+                    </p>
+                    <p className="text-sm font-semibold text-green-600 mt-2">
+                      Rs {product.starting_price}
+                    </p>
+                  </div>
+                  <div className="p-1 flex justify-end">
+                    <button onClick={() => navigate(`/product/${product.id}`)} className="w-1/2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors">
+                      Bid Now
+                    </button>
+                  </div>
                 </div>
-                <div className="p-1 flex justify-end">
-                  <button  onClick={() => navigate(`/product/${product.id}`)} className="w-1/2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors">
-                    Bid Now
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
           </div>
 
         </div>
-
       </div>
-    </div>
     </div>
   );
 };
