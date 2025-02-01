@@ -110,7 +110,7 @@ const Navbar = () => {
               {firstName && (
                 <span className="text-gray-700 font-normal text-sm">Hi, {firstName}</span> // Display first name
               )}
-              <img className='w-8 rounded-full' src={profile} alt="Profile" />
+              <img className='w-8 rounded-full' src={"https://media.istockphoto.com/vectors/profile-icon-male-avatar-portrait-casual-person-vector-id530829125?k=6&m=530829125&s=612x612&w=0&h=Z76VH4c_W2aJ6UdUnjuCtLssjlFVNwNEns5VVNpH1Mg="} alt="Profile" />
               <img className='w-2.5' src={arrow} alt="Dropdown" />
               <div className='absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block'>
                 <div className='min-w-48 bg-stone-100 rounded flex flex-col gap-4 p-4'>
