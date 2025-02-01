@@ -124,7 +124,6 @@ const UserProfile = () => {
           <h2 className="text-2xl font-semibold mt-4">{user.username}</h2>
           <p className="text-gray-500">{user.email}</p>
           <p className="text-gray-400">{user.address || "No address provided"}</p>
-          <p className="text-blue-600 font-medium mt-2">Role: {user.user_role}</p>
 
           <button
             className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"

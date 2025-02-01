@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const LoginForm = ({ successMessage, switchToRegister, closeModal }) => {
+const LoginForm = ({ successMessage, switchToRegister = () => {}, closeModal }) => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -95,7 +95,7 @@ const LoginForm = ({ successMessage, switchToRegister, closeModal }) => {
 
 
     return (
-        <form onSubmit={handleLogin} className="p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
+        <form onSubmit={handleLogin} className="p-6 bg-white rounded-lg  max-w-md mx-auto">
             {successMessage && (
                 <p className="bg-green-500 text-white text-center p-2 mb-4 rounded-md">
                     {successMessage}
