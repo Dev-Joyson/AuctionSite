@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthModal from "./AuthModal";
 import profile from '../assets/profile_pic.png';
@@ -12,6 +12,8 @@ const Navbar = () => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [firstName, setFirstName] = useState("");
   const [userID, setUserID] = useState("");
+  const location = useLocation();
+  const isAdminDashboard = location.pathname === "/admin";
 
   useEffect(() => {
     const storedFirstName = localStorage.getItem("firstname");
@@ -84,7 +86,7 @@ const Navbar = () => {
   return (
     <>
       <div
-        className={`flex items-center justify-between text-base py-4 sm:px-[5%] mb-5 bg-white sticky top-0 z-50 shadow-sm ${scrolled ? "bg-opacity-80 backdrop-blur-lg" : ""}`}
+        className={`flex items-center justify-between text-base py-4 sm:px-[5%] ${isAdminDashboard ? "" : "mb-5" } bg-white sticky top-0 z-50 shadow-sm ${scrolled ? "bg-opacity-80 backdrop-blur-lg" : ""}`}
       >
         <h1 onClick={() => navigate("/")} className="cursor-pointer text-primary text-3xl font-bold">
           BestBid
