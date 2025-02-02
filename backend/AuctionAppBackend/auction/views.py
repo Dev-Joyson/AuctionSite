@@ -314,6 +314,9 @@ class DashboardStatsView(APIView):
         categories = [item['category'] for item in category_counts]
         counts = [item['count'] for item in category_counts]
 
+        admin_count = User.objects.filter(user_role='Admin').count()
+        user_count = User.objects.filter(user_role='User').count()
+
         return Response({
             "total_users": total_users,
             "total_products": total_products,
@@ -321,4 +324,6 @@ class DashboardStatsView(APIView):
             "finished_auctions": finished_auctions,
             "product_categories": categories,
             "product_category_counts": counts,
+            "admin_count": admin_count,
+            "user_count": user_count,
         })
