@@ -90,7 +90,18 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'username', 'password', 'first_name', 'last_name', 'address', 'nic_number', 'profile_image']
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'username': {'required': False},
+            'last_name': {'required': False},
+            'password': {'required': False},
+        }
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
