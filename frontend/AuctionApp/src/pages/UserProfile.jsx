@@ -84,7 +84,7 @@ const UserProfile = () => {
     try {
       const authToken = localStorage.getItem("token");
       const response = await fetch(`http://localhost:8000/api/users/${id}/`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${authToken}`,
@@ -117,7 +117,7 @@ const UserProfile = () => {
         {/* Profile Section */}
         <div className="w-full sm:w-1/3 text-center p-4 border-r">
           <img
-            src={user.profile_image || "https://via.placeholder.com/150"}
+            src={user.profile_image || "https://media.istockphoto.com/vectors/profile-icon-male-avatar-portrait-casual-person-vector-id530829125?k=6&m=530829125&s=612x612&w=0&h=Z76VH4c_W2aJ6UdUnjuCtLssjlFVNwNEns5VVNpH1Mg="}
             alt="Profile"
             className="w-32 h-32 mx-auto rounded-full border-4 border-blue-500 shadow-md"
           />
