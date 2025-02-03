@@ -4,44 +4,37 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Product = () => {
-  const { id } = useParams(); // Get the product ID from the URL
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const [remainingTime, setRemainingTime] = useState(''); // State to hold remaining time
-  const [bidAmount, setBidAmount] = useState(''); // State to handle bid input
-  const [recentBids, setRecentBids] = useState([]); // Store recent 5 bids
+  const [remainingTime, setRemainingTime] = useState('');
+  const [bidAmount, setBidAmount] = useState('');
+  const [recentBids, setRecentBids] = useState([]);
+  const [winner, setWinner] = useState(null);
 
   useEffect(() => {
     fetchProductDetails();
   }, [id]);
 
-  // ✅ NEW useEffect to fetch recent bids when auction_id becomes available
-  useEffect(() => {
-    if (product && product.auction_id) {
-      fetchRecentBids(product.auction_id);
-    }
-  }, [product]); // ✅ Watches for `product` changes
-
-  // Fetch product details & bid history
   const fetchProductDetails = async () => {
     try {
       const response = await fetch(`http://localhost:8000/api/products/${id}/`);
       const data = await response.json();
-      console.log("Product Data:", data);
       setProduct(data);
 
       if (data.end_time) {
         const interval = setInterval(() => {
-          updateRemainingTime(data.end_time);
+          const timeLeft = updateRemainingTime(data.end_time);
+          if (timeLeft <= 0) {
+            clearInterval(interval);
+            fetchRecentBids(data.auction_id); // Fetch bids again after countdown ends
+          }
         }, 1000);
-        return () => clearInterval(interval);
       }
-
     } catch (error) {
       console.error("Error fetching product details:", error);
     }
   };
 
-  // Fetch last 5 bids
   const fetchRecentBids = async (auctionId) => {
     try {
       if (!auctionId) return;
@@ -49,15 +42,27 @@ const Product = () => {
       if (!response.ok) throw new Error("Failed to fetch bids");
 
       const data = await response.json();
-      setRecentBids(data.slice(0, 5)); // Take only last 5 bids
+      setRecentBids(data.slice(0, 5));
 
+      const topBid = data.reduce(
+        (highest, bid) => (parseFloat(bid.bid_amount) > parseFloat(highest.bid_amount) ? bid : highest),
+        { bid_amount: 0 }
+      );
+      if (topBid.username) {
+        setWinner(topBid.username);
+      }
     } catch (error) {
       console.error("Error fetching bids:", error);
       toast.error("⚠️ Could not fetch bid history.");
     }
   };
 
-  // Update countdown timer
+  useEffect(() => {
+    if (product && product.auction_id) {
+      fetchRecentBids(product.auction_id);
+    }
+  }, [product]);
+
   const updateRemainingTime = (endTime) => {
     const end = new Date(endTime).getTime();
     const now = new Date().getTime();
@@ -67,29 +72,34 @@ const Product = () => {
       const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
       const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000); // ✅ Add seconds
-
-      setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`); // ✅ Update UI with seconds
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+      setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
     } else {
       setRemainingTime('Auction ended');
     }
+    return timeLeft;
   };
 
-
-  // Handle bid input
   const handleBidInput = (event) => {
     setBidAmount(event.target.value);
   };
 
-  // Place a bid
   const handlePlaceBid = async () => {
     if (!product || !product.auction_id) {
       console.error('Auction ID not found');
       return;
     }
 
+    const startingPrice = parseFloat(product.starting_price);
+    const highestBid = recentBids.length > 0 ? Math.max(...recentBids.map(bid => parseFloat(bid.bid_amount))) : 0;
+
     if (!bidAmount || bidAmount <= 0) {
       toast.warning("⚠️ Please enter a valid bid amount.");
+      return;
+    }
+
+    if (parseFloat(bidAmount) < Math.max(startingPrice, highestBid)) {
+      toast.warning("Your bid must be higher than the starting price and the current highest bid.");
       return;
     }
 
@@ -122,8 +132,7 @@ const Product = () => {
 
       toast.success("🎉 Bid placed successfully!");
       setBidAmount("");
-      fetchRecentBids(product.auction_id); // Refresh bid history
-
+      fetchRecentBids(product.auction_id);
     } catch (error) {
       console.error("Error placing bid:", error);
       toast.error("❌ Failed to place bid. Please try again.");
@@ -139,7 +148,6 @@ const Product = () => {
       <ToastContainer position="top-right" autoClose={3000} />
 
       <div className="flex flex-col sm:flex-row gap-10 justify-center">
-        {/* Product Image */}
         <div className="w-full sm:w-1/2 p-4 flex justify-center">
           <img
             src={product.image}
@@ -149,16 +157,18 @@ const Product = () => {
           />
         </div>
 
-        {/* Product Details & Bid Section */}
         <div className="p-4 border-2 border-gray-300 rounded-xl shadow-lg w-1/3">
           <div className="flex flex-col gap-4 w-full">
-            {/* Auction Timer */}
             <div className="w-full p-4 text-center bg-gray-100 rounded-lg shadow-md">
               <h2 className="text-lg font text-red-500 uppercase tracking-wide">⏳ Time Remaining:</h2>
               <p className="text-xl font-semibold text-gray-800 mt-2">{remainingTime}</p>
+              {remainingTime === "Auction ended" && winner && (
+                <p className="text-lg font-semibold text-green-600 mt-2">
+                  Winner: {winner}
+                </p>
+              )}
             </div>
 
-            {/* Product Information */}
             <div className="w-full p-4">
               <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
               <p className="text-gray-600 mb-4">{product.description}</p>
@@ -166,7 +176,6 @@ const Product = () => {
               <p className="text-green-600 text-xl font-semibold mb-4">Starting Price: Rs {product.starting_price}</p>
             </div>
 
-            {/* Bidding Options */}
             <input
               type="number"
               placeholder="Enter your bid"
@@ -181,7 +190,6 @@ const Product = () => {
               Place Your Bid
             </button>
 
-            {/* Recent Bids Section */}
             <div className="w-full mt-6 p-4 bg-gray-100 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold text-gray-700 mb-3">📜 Top Bids</h3>
               {recentBids.length === 0 ? (
@@ -196,8 +204,6 @@ const Product = () => {
                 </ul>
               )}
             </div>
-
-
           </div>
         </div>
       </div>
